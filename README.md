@@ -141,3 +141,17 @@ To start and run the local development server,
   ```
 
 4. Navigate to Home page [http://localhost:5000](http://localhost:5000)
+
+
+
+####### create database schema with flask migrate
+database  - flask migrate
+1 flask db init
+2 flask db migrate
+
+
+####### DB CONNECTION - TERMINAL
+psql --host=localhost --port=5432 --username=postgres --password
+\l show databases
+\c connect to database
+\dt show tables

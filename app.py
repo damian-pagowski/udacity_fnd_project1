@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-
+from flask_migrate import Migrate
 import json
 import dateutil.parser
 import babel
@@ -42,7 +42,6 @@ class Venue(db.Model):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -93,27 +92,14 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
+  venues = Venue.query.order_by(Venue.city).all()
+  data =  []
+  for venue in venues:
+    venue_info = { "city": venue.city, "state": venue.state, "venues": [{
       "id": 2,
       "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
+      "num_upcoming_shows": 0}]}
+    data.append(venue_info)
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
@@ -225,15 +211,31 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
-
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+  form = VenueForm()
+  error = False
+  try:
+    venue = Venue()
+    venue.name = request.form['name']
+    venue.city = request.form['city']
+    venue.state = request.form['state']
+    venue.address = request.form['address']
+    venue.phone = request.form['phone']
+    genres_form_data = request.form.getlist('genres')
+    venue.genres = ','.join(genres_form_data)
+    venue.facebook_link = request.form['facebook_link']
+    db.session.add(venue)
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+    if error:
+        flash("ERROR: Venue %s cannot be created" % request.form['name'])
+    else:
+        flash('Venue ' + request.form['name'] + ' was successfully listed!')
+    return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
@@ -485,6 +487,8 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # TODO: insert form data as a new Show record in the db, instead
+  
+        
 
   # on successful db insert, flash success
   flash('Show was successfully listed!')
