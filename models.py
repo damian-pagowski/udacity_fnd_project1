@@ -13,7 +13,8 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     genres = db.Column(db.String(120))
     shows = db.relationship('Show', backref="venue", lazy=True)
-
+#  "seeking_venue": True,
+#     "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
     def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres):
         self.name = name
         self.city = city
@@ -45,7 +46,7 @@ class Venue(db.Model):
             "phone": self.phone,
             "image_link": self.image_link,
             "facebook_link":  self.facebook_link,
-            "genres": self.genres,
+            "genres": self.genres.split(","),
         }
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -87,6 +88,17 @@ class Artist(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def format(self):
+        return {
+            "name": self.name,
+            "id": self.id,
+            "city": self.city,
+            "state": self.state,
+            "phone": self.phone,
+            "genres": self.genres.split(","),
+            "image_link": self.image_link,
+            "facebook_link": self.facebook_link,
+        }
 
 class Show(db.Model):
     __tablename__ = 'show'
