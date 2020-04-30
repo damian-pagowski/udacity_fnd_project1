@@ -67,14 +67,17 @@ def get_upcoming_shows(venue_id):
     now = datetime.datetime.now()
     # print(venue_id)
     # print(now)
-    shows = Show.query.filter(Show.venue_id == venue_id) #.filter(Show.start_time > now)
+    # .filter(Show.start_time > now)
+    shows = Show.query.filter(Show.venue_id == venue_id)
     return list(map(Show.format, shows))
 
 
 def get_past_shows(venue_id):
     now = datetime.datetime.now
-    shows =  Show.query.filter(Show.venue_id == venue_id) # filter(Show.start_time < now)
+    # filter(Show.start_time < now)
+    shows = Show.query.filter(Show.venue_id == venue_id)
     return list(map(Show.format, shows))
+
 
 @app.route('/venues')
 def venues():
@@ -124,6 +127,7 @@ def format_shows(shows):
         data.append(show_formatted)
     return data
 
+
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
     result = Venue.query.get(venue_id).format()
@@ -139,28 +143,40 @@ def show_venue(venue_id):
     result["past_shows"] = past_shows_formatted
     past_shows_count = len(past_shows)
     result['past_shows_count'] = past_shows_count
-    return jsonify(result)
-#   return render_template('pages/show_venue.html', venue=data)
+    # return jsonify(result)
+    return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
 #  ----------------------------------------------------------------
+
 
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
   form = VenueForm()
   return render_template('forms/new_venue.html', form=form)
 
+
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
-
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+    # extract data from from
+    name = request.form['name']
+    city = request.form['city']
+    state = request.form['state']
+    address = request.form['address']
+    phone = request.form['phone']
+    genres_form_data = request.form.getlist('genres')
+    image_link = request.form.getlist("image_link")
+    genres = ','.join(genres_form_data)
+    facebook_link = request.form['facebook_link']
+    # insert Venue to DB
+    venue = Venue(name, city, state, address, phone,
+                  image_link, facebook_link, genres)
+    try:
+        venue.insert()
+        flash('Venue ' + request.form['name'] + ' was successfully listed!')
+    except:
+        flash('Venue ' + request.form['name'] + ' could not be listed!')
+    return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):

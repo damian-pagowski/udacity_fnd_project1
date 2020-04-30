@@ -14,7 +14,7 @@ class Venue(db.Model):
     genres = db.Column(db.String(120))
     shows = db.relationship('Show', backref="venue", lazy=True)
 
-    def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres, shows):
+    def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres):
         self.name = name
         self.city = city
         self.state = state
@@ -23,7 +23,6 @@ class Venue(db.Model):
         self.image_link = image_link
         self.facebook_link = facebook_link
         self.genres = genres
-        self.shows = shows
 
     def insert(self):
         db.session.add(self)
@@ -68,7 +67,7 @@ class Artist(db.Model):
     facebook_link = db.Column(db.String(120))
     shows = db.relationship('Show', backref="artist", lazy=True)
 
-    def __init__(self, name, city, state, phone, image_link, facebook_link, genres, shows):
+    def __init__(self, name, city, state, phone, image_link, facebook_link, genres):
         self.name = name
         self.city = city
         self.state = state
@@ -76,7 +75,6 @@ class Artist(db.Model):
         self.genres = genres
         self.image_link = image_link
         self.facebook_link = facebook_link
-        self.shows = shows
 
     def insert(self):
         db.session.add(self)
