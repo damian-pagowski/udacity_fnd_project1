@@ -38,16 +38,15 @@ class Venue(db.Model):
 
     def format(self):
         return {
+            "id": self.id,
             "name": self.name,
             "city": self.city,
-
             "state": self.state,
             "address": self.address,
             "phone": self.phone,
             "image_link": self.image_link,
             "facebook_link":  self.facebook_link,
             "genres": self.genres,
-            "shows": self.shows
         }
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
