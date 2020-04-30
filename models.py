@@ -15,6 +15,7 @@ class Venue(db.Model):
     shows = db.relationship('Show', backref="venue", lazy=True)
 #  "seeking_venue": True,
 #     "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
+
     def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres):
         self.name = name
         self.city = city
@@ -66,6 +67,9 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    # website = db.Column(db.String(120))
+    # seeking_description = db.Column(db.String(500))
+    # seeking_venue =
     shows = db.relationship('Show', backref="artist", lazy=True)
 
     def __init__(self, name, city, state, phone, image_link, facebook_link, genres):
@@ -100,6 +104,7 @@ class Artist(db.Model):
             "facebook_link": self.facebook_link,
         }
 
+
 class Show(db.Model):
     __tablename__ = 'show'
 
@@ -108,6 +113,23 @@ class Show(db.Model):
         'artist.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
+
+    def __init__(self, artist_id, venue_id, start_time):
+        self.artist_id = artist_id
+        self.venue_id = venue_id
+        self.start_time = start_time
+
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
     def format(self):
         return {
