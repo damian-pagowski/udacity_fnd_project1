@@ -30,6 +30,7 @@ migrate = Migrate(app, db)
 # Filters.
 #----------------------------------------------------------------------------#
 
+
 def format_datetime(value, format='medium'):
     # @TODO FIX!!!
 #   date = dateutil.parser.parse(value)
@@ -40,11 +41,13 @@ def format_datetime(value, format='medium'):
 #   return babel.dates.format_datetime(date, format)
     return "2020/1/1"
 
+
 app.jinja_env.filters['datetime'] = format_datetime
 
 #----------------------------------------------------------------------------#
 # Controllers.
 #----------------------------------------------------------------------------#
+
 
 @app.route('/')
 def index():
@@ -56,19 +59,22 @@ def index():
 def get_unique_cities_states():
     cities = []
     for venue in Venue.query.distinct(Venue.city):
-        cities.append({"city": venue.city, "state" : venue.state})
+        cities.append({"city": venue.city, "state": venue.state})
     return cities
+
 
 def get_upcoming_shows(venue_id):
     now = datetime.datetime.now()
     # print(venue_id)
     # print(now)
     shows = Show.query.filter(Show.venue_id == venue_id)
-    return list(map(Show.format, shows ))
+    return list(map(Show.format, shows))
+
 
 def get_past_shows(venue_id):
     now = datetime.datetime.now
     return Show.query.filter(Show.venue_id == venue_id).filter(Show.start_time < now)
+
 
 @app.route('/venues')
 def venues():
@@ -81,25 +87,29 @@ def venues():
         for venue in venues_in_city:
             upcoming = get_upcoming_shows(venue.id)
             num_upcoming_shows = len(upcoming)
-            data['venues'].append({"name": venue.name, "id": venue.id, "num_upcoming_shows": num_upcoming_shows})
+            data['venues'].append(
+                {"name": venue.name, "id": venue.id, "num_upcoming_shows": num_upcoming_shows})
         response.append(data)
     # return jsonify(response)
     return render_template('pages/venues.html', areas=response)
 
+
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for Hop should return "The Musical Hop".
-  # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+    search_phrase = request.form["search_term"]
+    matching_venues = Venue.query.filter(Venue.name.contains(search_phrase))
+    response = {
+    "count": 0,
+    "data": []
+    }
+    for venue in matching_venues:
+        upcoming = get_upcoming_shows(venue.id)
+        num_upcoming_shows = len(upcoming)
+        response['count'] += 1
+        response['data'].append(
+            {"name": venue.name, "id": venue.id, "num_upcoming_shows": num_upcoming_shows})
+    return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
