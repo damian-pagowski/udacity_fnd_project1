@@ -12,11 +12,11 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     genres = db.Column(db.String(120))
+    seeking_talent = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(500))
     shows = db.relationship('Show', backref="venue", lazy=True)
-#  "seeking_venue": True,
-#     "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
 
-    def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres):
+    def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres, seeking_talent=False, seeking_description=""):
         self.name = name
         self.city = city
         self.state = state
@@ -25,6 +25,8 @@ class Venue(db.Model):
         self.image_link = image_link
         self.facebook_link = facebook_link
         self.genres = genres
+        self.seeking_talent = seeking_talent
+        self.seeking_description = seeking_description
 
     def insert(self):
         db.session.add(self)
@@ -48,14 +50,9 @@ class Venue(db.Model):
             "image_link": self.image_link,
             "facebook_link":  self.facebook_link,
             "genres": self.genres.split(","),
+            "seeking_talent": self.seeking_talent,
+            "seeking_description": self.seeking_description
         }
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-    # image_link = db.Column(db.String(500))
-    # website = db.Column(db.String(120))
-    # seeking_talent = db.Column(db.Boolean)
-    # seeking_description = db.Column(db.String(120))
-
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -67,12 +64,11 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-    # website = db.Column(db.String(120))
-    # seeking_description = db.Column(db.String(500))
-    # seeking_venue =
+    seeking_venue = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(500))
     shows = db.relationship('Show', backref="artist", lazy=True)
 
-    def __init__(self, name, city, state, phone, image_link, facebook_link, genres):
+    def __init__(self, name, city, state, phone, image_link, facebook_link, genres, seeking_venue=False, seeking_description=""):
         self.name = name
         self.city = city
         self.state = state
@@ -80,6 +76,8 @@ class Artist(db.Model):
         self.genres = genres
         self.image_link = image_link
         self.facebook_link = facebook_link
+        self.seeking_venue = seeking_venue
+        self.seeking_description = seeking_description
 
     def insert(self):
         db.session.add(self)
@@ -102,6 +100,8 @@ class Artist(db.Model):
             "genres": self.genres.split(","),
             "image_link": self.image_link,
             "facebook_link": self.facebook_link,
+            "seeking_venue": self.seeking_venue,
+            "seeking_description": self.seeking_description
         }
 
 
@@ -118,7 +118,6 @@ class Show(db.Model):
         self.artist_id = artist_id
         self.venue_id = venue_id
         self.start_time = start_time
-
 
     def insert(self):
         db.session.add(self)
