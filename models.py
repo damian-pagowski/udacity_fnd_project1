@@ -9,11 +9,11 @@ class Venue(db.Model):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
+    image_link = db.Column(db.String(120))
     facebook_link = db.Column(db.String(120))
     genres = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean)
-    seeking_description = db.Column(db.String(500))
+    seeking_description = db.Column(db.String(120))
     shows = db.relationship('Show', backref="venue", lazy=True)
 
     def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres, seeking_talent=False, seeking_description=""):
@@ -62,10 +62,10 @@ class Artist(db.Model):
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
+    image_link = db.Column(db.String(120))
     facebook_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean)
-    seeking_description = db.Column(db.String(500))
+    seeking_description = db.Column(db.String(120))
     shows = db.relationship('Show', backref="artist", lazy=True)
 
     def __init__(self, name, city, state, phone, image_link, facebook_link, genres, seeking_venue=False, seeking_description=""):

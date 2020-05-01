@@ -1,7 +1,6 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-from models import *
 from flask_migrate import Migrate
 import json
 import dateutil.parser
@@ -25,7 +24,8 @@ moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
+# looks like model import should be always after instantiating db
+from models import *
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
@@ -52,7 +52,6 @@ app.jinja_env.filters['datetime'] = format_datetime
 @app.route('/')
 def index():
   return render_template('pages/home.html')
-
 
 #  Venues
 #  ----------------------------------------------------------------
@@ -166,15 +165,21 @@ def create_venue_submission():
     image_link = request.form.getlist("image_link")
     genres = ','.join(genres_form_data)
     facebook_link = request.form['facebook_link']
+    seeking_talent      = request.form['seeking_talent']
+    seeking_description = request.form['seeking_description']
+
     # insert Venue to DB
+    #     def __init__(self, name, city, state, address, phone, image_link, facebook_link, genres, seeking_talent=False, seeking_description=""):
+
     venue = Venue(name, city, state, address, phone,
-                  image_link, facebook_link, genres)
+                  image_link, facebook_link, genres, seeking_talent, seeking_description)
     try:
         venue.insert()
         flash('Venue ' + request.form['name'] + ' was successfully listed!')
     except:
         flash('Venue ' + request.form['name'] + ' could not be listed!')
-    return render_template('pages/home.html')
+    # return render_template('pages/home.html')
+    return jsonify(venue.format())
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
